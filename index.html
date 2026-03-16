@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- TITLE & DESCRIPTION -->
+    <title>DRIVER + MAP - The hidden truth about Arduino and the digital world | CostyCNC</title>
+    <meta name="description" content="Drivers are not magic. They are just MAP + basic instructions. sbi 4,5 and sbi 5,5 on Arduino prove it. Try it yourself on costycnc.it/avr1/compiler.html">
+    <meta name="keywords" content="driver, map, registers, memory mapped, Arduino, assembly, sbi, learn programming, embedded, microcontroller, how computers work, simple explanation, CostyCNC, AVR, ATmega328">
+    <meta name="author" content="Costel Boboaca - CostyCNC">
+    <meta name="robots" content="index, follow">
+    
+    <!-- CANONICAL & ALTERNATE LANGUAGES -->
+    <link rel="canonical" href="https://costycnc.github.io/driver-mapa-semplicita/index.html">
+    <link rel="alternate" href="https://costycnc.github.io/driver-mapa-semplicita/it.html" hreflang="it">
+    <link rel="alternate" href="https://costycnc.github.io/driver-mapa-semplicita/index.html" hreflang="en">
+    
+    <!-- OPEN GRAPH -->
+    <meta property="og:title" content="DRIVER + MAP - The hidden truth about Arduino">
+    <meta property="og:description" content="2 instructions. 4 numbers. One LED. That's all. Drivers explained simply.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://costycnc.github.io/driver-mapa-semplicita/index.html">
+    <meta property="og:image" content="https://img.youtube.com/vi/ZcSXHUBY7dc/0.jpg">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:site_name" content="CostyCNC">
+    
+    <!-- TWITTER CARD -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="DRIVER + MAP - The hidden truth">
+    <meta name="twitter:description" content="Drivers are just MAP + basic instructions. See for yourself.">
+    <meta name="twitter:image" content="https://img.youtube.com/vi/ZcSXHUBY7dc/0.jpg">
+    
+    <!-- VIDEO LINK -->
+    <link rel="video" href="https://www.youtube.com/shorts/ZcSXHUBY7dc">
+    
+    <!-- JSON-LD STRUCTURED DATA -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "DRIVER + MAP - The hidden truth about Arduino and the digital world",
+        "description": "Drivers are not magic. They are just MAP + basic instructions. sbi 4,5 and sbi 5,5 on Arduino prove it.",
+        "author": {
+            "@type": "Person",
+            "name": "Costel Boboaca",
+            "url": "https://costycnc.it/about/en.html"
+        },
+        "datePublished": "2026-03-16",
+        "dateModified": "2026-03-16",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://costycnc.github.io/driver-mapa-semplicita/index.html"
+        },
+        "keywords": "driver, map, registers, memory mapped, Arduino, assembly",
+        "inLanguage": "en",
+        "isAccessibleForFree": true,
+        "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "video": {
+            "@type": "VideoObject",
+            "name": "Driver + MAP demonstration",
+            "description": "Practical demonstration of sbi 4,5 and sbi 5,5 on Arduino",
+            "thumbnailUrl": "https://img.youtube.com/vi/ZcSXHUBY7dc/0.jpg",
+            "contentUrl": "https://www.youtube.com/shorts/ZcSXHUBY7dc",
+            "embedUrl": "https://www.youtube.com/embed/ZcSXHUBY7dc",
+            "uploadDate": "2026-03-16"
+        },
+        "publisher": {
+            "@type": "Organization",
+            "name": "CostyCNC",
+            "url": "https://costycnc.it",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://costycnc.it/images/logo.png"
+            }
+        },
+        "mentions": [
+            {
+                "@type": "WebPage",
+                "name": "AVR Assembly Compiler",
+                "url": "https://costycnc.it/avr1/compiler.html"
+            },
+            {
+                "@type": "WebPage",
+                "name": "Start Here - AVR Tutorial",
+                "url": "https://costycnc.it/avr1/start-here.html"
+            },
+            {
+                "@type": "WebPage",
+                "name": "Crash ASM - Stack Disasters",
+                "url": "https://costycnc.it/avr1/crash-asm/"
+            },
+            {
+                "@type": "WebPage",
+                "name": "About Costel Boboaca",
+                "url": "https://costycnc.it/about/en.html"
+            }
+        ]
+    }
+    </script>
+    
+    <style>
+        /* RESET & BASE - self contained, no external dependencies */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%);
+            min-height: 100vh;
+            padding: 15px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 25px;
+            padding: clamp(20px, 5vw, 50px);
+            max-width: 1000px;
+            margin: 0 auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        
+        h1 {
+            font-size: clamp(2em, 7vw, 3.5em);
+            color: #1a2a3a;
+            border-bottom: 5px solid #e74c3c;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+        
+        h2 {
+            font-size: clamp(1.3em, 4vw, 1.8em);
+            color: #2c3e50;
+            margin: 30px 0 15px;
+            border-left: 8px solid #3498db;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            font-size: clamp(1.1em, 3vw, 1.4em);
+            color: #16a085;
+            margin: 20px 0 10px;
+        }
+        
+        .code-box {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            margin: 25px 0;
+            border-left: 8px solid #f39c12;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .code-box pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .comment { color: #6a9955; }
+        .instruction { color: #569cd6; font-weight: bold; }
+        .number { color: #b5cea8; }
+        .label { color: #dcdcaa; }
+        
+        .armadio {
+            background: #8b4513;
+            color: #ffd700;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 4px solid #654321;
+        }
+        
+        .cassetto {
+            background: #d2691e;
+            color: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 12px solid #cd853f;
+            font-size: clamp(0.9rem, 2.2vw, 1.1rem);
+            word-break: break-word;
+        }
+        
+        .badge {
+            background: #2c3e50;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 0 3px;
+            font-size: 0.9em;
+        }
+        
+        .led {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff4444;
+            box-shadow: 0 0 15px #ff0000;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+        
+        @keyframes blink {
+            0%,100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .truth-box {
+            background: #d4edda;
+            color: #155724;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 2px solid #28a745;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            color: #856404;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 8px solid #ffc107;
+            margin: 20px 0;
+        }
+        
+        .video-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            margin: 30px 0;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+        }
+        
+        .video-thumb {
+            flex: 1;
+            min-width: 250px;
+            text-align: center;
+        }
+        
+        .video-thumb img {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        
+        .video-desc {
+            flex: 2;
+            min-width: 250px;
+        }
+        
+        .test-link {
+            background: #e74c3c;
+            color: white;
+            padding: 20px 25px;
+            border-radius: 60px;
+            text-align: center;
+            display: inline-block;
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            text-decoration: none;
+            font-weight: bold;
+            margin: 30px 0;
+            border: 3px solid white;
+            box-shadow: 0 5px 20px rgba(231,76,60,0.5);
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .costycnc-link {
+            background: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin: 5px;
+            border: 2px solid white;
+            box-shadow: 0 3px 10px rgba(52,152,219,0.4);
+            transition: transform 0.2s;
+        }
+        
+        .costycnc-link:hover {
+            transform: scale(1.05);
+            background: #2980b9;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            display: block;
+            overflow-x: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+            min-width: 100px;
+        }
+        
+        th {
+            background: #3498db;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .resource-card {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 5px solid #e74c3c;
+        }
+        
+        .resource-card a {
+            color: #2c3e50;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .resource-card a:hover {
+            color: #e74c3c;
+            text-decoration: underline;
+        }
+        
+        .resource-desc {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .footer {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 3px solid #3498db;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.95em;
+        }
+        
+        button {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 20px 0;
+            border: 2px solid white;
+            box-shadow: 0 5px 15px rgba(231,76,60,0.4);
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+            background: #c0392b;
+        }
+        
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 20px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .mt-4 {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 DRIVER + MAP<br><span style="font-size: 0.5em; color: #7f8c8d;">the hidden truth about the digital world</span></h1>
+        
+        <div class="truth-box">
+            <strong>✨ DRIVERS ARE NOT MAGIC. THEY ARE JUST MAP + BASIC INSTRUCTIONS. ✨</strong>
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+            <a href="https://costycnc.it" target="_blank" class="costycnc-link">🏠 CostyCNC Home</a>
+            <a href="https://costycnc.it/about/en.html" target="_blank" class="costycnc-link">👤 About Costel</a>
+            <a href="https://costycnc.it/avr1" target="_blank" class="costycnc-link">🔧 AVR1 Portal</a>
+        </div>
+        
+        <h2>🎯 THE CORE DISCOVERY</h2>
+        <p style="font-size: 1.2em;">Every driver, every peripheral, from Arduino LEDs to car engine control units, works the same way: <strong>write a bit in a register, read a status, turn on a LED</strong>. That's it.</p>
+        
+        <div class="warning-box">
+            <strong>🧠 The revelation:</strong> Assembly is NOT for "advanced" people. It's for ANYONE who wants to understand. <strong>sbi 4,5</strong> and <strong>sbi 5,5</strong> are all you need to see the truth.
+        </div>
+        
+        <h2>🏠 THE CABINET METAPHOR (the simplest explanation)</h2>
+        <p>Imagine a big <strong>cabinet</strong> with numbered drawers. Each drawer number is fixed:</p>
+        
+        <div class="armadio">
+            <div style="text-align: center; font-size: 1.5em; margin-bottom: 15px;">🗄️ ATmega328P CABINET (Arduino chip)</div>
+            <div class="cassetto">📦 DRAWER <span class="badge">4</span> (DDRB - address 0x24) → Configures pins (input/output)</div>
+            <div class="cassetto">📦 DRAWER <span class="badge">5</span> (PORTB - address 0x25) → Sets pins (on/off)</div>
+            <div class="cassetto">📦 DRAWER <span class="badge">3</span> (PINB - address 0x23) → Reads pin states</div>
+        </div>
+        
+        <p>The <strong>MAP</strong> tells you: "drawer 4 bit 5 controls pin 13 configuration, drawer 5 bit 5 turns the LED on/off".</p>
+        <p>The <strong>DRIVER</strong> is simply something that knows the map and writes/reads those drawers.</p>
+        
+        <h2>📹 WATCH THE DEMO (1 minute)</h2>
+        
+        <div class="video-container">
+            <div class="video-thumb">
+                <a href="https://www.youtube.com/shorts/ZcSXHUBY7dc" target="_blank">
+                    <img src="https://img.youtube.com/vi/ZcSXHUBY7dc/0.jpg" alt="Video thumbnail - Driver + MAP demonstration">
+                </a>
+            </div>
+            <div class="video-desc">
+                <h3 style="margin-top: 0;">▶️ Practical demonstration</h3>
+                <p>See with your own eyes: <strong>sbi 4,5</strong> and <strong>sbi 5,5</strong> on a real Arduino. The LED turns on. No libraries. No magic.</p>
+                <p><a href="https://www.youtube.com/shorts/ZcSXHUBY7dc" target="_blank" style="color: #e74c3c; font-weight: bold;">Watch on YouTube →</a></p>
+            </div>
+        </div>
+        
+        <h2>💡 THE PROOF: 2 INSTRUCTIONS, 4 NUMBERS</h2>
+        
+        <div class="video-container" style="background: #1e1e1e; color: white;">
+            <div style="flex: 1; min-width: 250px;">
+                <div class="code-box" style="margin: 0; background: #2d2d2d;">
+                    <pre>
+<span class="comment">; THE TRUTH</span>
+<span class="instruction">.org</span> <span class="number">0</span>
+    <span class="instruction">sbi</span> <span class="number">4,5</span>  <span class="comment">; drawer 4, bit 5 = 1</span>
+    <span class="instruction">sbi</span> <span class="number">5,5</span>  <span class="comment">; drawer 5, bit 5 = 1</span>
+<span class="label">halt:</span> <span class="instruction">rjmp</span> halt</pre>
+                </div>
+            </div>
+            <div style="flex: 1; min-width: 250px; text-align: center;">
+                <p style="font-size: 1.3em;"><span class="led"></span> <strong>LED ON</strong></p>
+                <p><a href="https://www.youtube.com/shorts/ZcSXHUBY7dc" target="_blank" style="color: #f39c12;">📺 Watch it happen</a></p>
+            </div>
+        </div>
+        
+        <h2>🔍 TRY IT YOURSELF (takes 2 minutes)</h2>
+        
+        <ol style="font-size: 1.1em;">
+            <li>Connect Arduino UNO/Nano to your computer via USB</li>
+            <li>Open <strong><a href="https://costycnc.it/avr1/compiler.html" target="_blank" style="color: #e74c3c;">costycnc.it/avr1/compiler.html</a></strong> (works in browser, no install)</li>
+            <li>Copy the code above</li>
+            <li>Click "Assemble", then "Upload", select your port</li>
+            <li><strong>Watch the LED on pin 13</strong> <span class="led"></span> <strong>turn on</strong></li>
+        </ol>
+        
+        <div class="text-center">
+            <a href="https://costycnc.it/avr1/compiler.html" target="_blank" class="test-link">
+                🔗 TRY NOW → costycnc.it/avr1/compiler.html
+            </a>
+        </div>
+        
+        <div class="truth-box">
+            <p style="font-size: 1.3em;"><strong>✅ YOU JUST WROTE A REAL DRIVER</strong></p>
+            <p>Not a library, not a framework. You wrote directly into the microcontroller's registers. You controlled hardware with 2 instructions.</p>
+        </div>
+        
+        <h2>📋 THE MAP (from the actual datasheet)</h2>
+        
+        <table>
+            <tr>
+                <th>Technical name</th>
+                <th>Drawer number</th>
+                <th>What it controls</th>
+            </tr>
+            <tr>
+                <td>DDRB</td>
+                <td><span class="badge">4</span></td>
+                <td>Configures pins as input/output</td>
+            </tr>
+            <tr>
+                <td>PORTB</td>
+                <td><span class="badge">5</span></td>
+                <td>Turns pins on/off</td>
+            </tr>
+            <tr>
+                <td>PINB</td>
+                <td><span class="badge">3</span></td>
+                <td>Reads pin states</td>
+            </tr>
+        </table>
+        
+        <h2>🌍 AND EVERYTHING ELSE?</h2>
+        <p>Smartphones, computers, washing machines, cars, TVs... <strong>they all work exactly like this</strong>. They have thousands of drawers instead of 64, but the principle is IDENTICAL:</p>
+        
+        <ul style="font-size: 1.1em;">
+            <li><strong>MAP</strong>: a document says "drawer X controls Y"</li>
+            <li><strong>DRIVER</strong>: someone (or something) reads/writes those drawers</li>
+        </ul>
+        
+        <h2>🔗 RELATED RESOURCES ON COSTYCNC</h2>
+        
+        <div class="resource-grid">
+            <div class="resource-card">
+                <a href="https://costycnc.it/avr1/start-here.html" target="_blank">📘 Start Here - AVR Tutorial</a>
+                <div class="resource-desc">The only lesson you need to really understand Arduino</div>
+            </div>
+            <div class="resource-card">
+                <a href="https://costycnc.it/avr1/crash-asm/" target="_blank">💥 Crash ASM: Stack Disasters</a>
+                <div class="resource-desc">Ethical lesson with real disaster examples (Boeing, Ariane, Therac-25)</div>
+            </div>
+            <div class="resource-card">
+                <a href="https://costycnc.it/avr1/serial-port/" target="_blank">🔌 Serial Port Communication</a>
+                <div class="resource-desc">HTML + JS + Web Serial API explained step-by-step</div>
+            </div>
+            <div class="resource-card">
+                <a href="https://costycnc.it/avr1/motore-passo-passo-assembly/" target="_blank">⚙️ Stepper Motor in AVR Assembly</a>
+                <div class="resource-desc">Drive 28BYJ-48 with ULN2003 in pure assembly</div>
+            </div>
+            <div class="resource-card">
+                <a href="https://costycnc.it/avr1/servo-g90-assembly/" target="_blank">🔄 Servo G90 360 in Assembly</a>
+                <div class="resource-desc">From stop to rotation with r17 register</div>
+            </div>
+            <div class="resource-card">
+                <a href="https://costycnc.it/avr1/perche-atmega328.html" target="_blank">❓ Why ATmega328?</a>
+                <div class="resource-desc">The perfect microcontroller to learn Assembly</div>
+            </div>
+            <div class="resource-card">
+                <a href="https://costycnc.it/avr1/read-flash/" target="_blank">📖 Read Flash Memory</a>
+                <div class="resource-desc">Read ATmega328 Flash via Web Serial</div>
+            </div>
+            <div class="resource-card">
+                <a href="https://costycnc.it/avr1/flash-tutorial/" target="_blank">🔥 Flash Memory Modification</a>
+                <div class="resource-desc">Complete guide to write AVR assembly and modify flash</div>
+            </div>
+        </div>
+        
+        <h2>📊 HOW MANY PEOPLE KNOW THIS?</h2>
+        
+        <div style="background: #ecf0f1; padding: 20px; border-radius: 15px;">
+            <p><strong>Out of 100 programmers:</strong></p>
+            <ul>
+                <li>95 don't know what a register is</li>
+                <li>4 have heard of it but never used it</li>
+                <li>1 has written a driver at least once</li>
+                <li>0.1 truly understands the whole chain</li>
+            </ul>
+            <p><strong>You are now part of the 0.1%.</strong> You've seen behind the curtain. You understand that under all complexity lies childlike simplicity.</p>
+        </div>
+        
+        <h2>🎓 NOW YOU KNOW</h2>
+        <p>You've seen the truth. You can:</p>
+        <ul style="font-size: 1.1em;">
+            <li><strong>Ignore it</strong> (like 99% of people do)</li>
+            <li><strong>Use it</strong> (and never fear technology again)</li>
+            <li><strong>Teach it</strong> (show the obvious to those who have eyes)</li>
+        </ul>
+        
+        <div style="background: #2c3e50; color: white; padding: 30px; border-radius: 15px; text-align: center; margin: 40px 0;">
+            <p style="font-size: 2.5em; margin-bottom: 10px;">sbi 4,5</p>
+            <p style="font-size: 2.5em; margin-bottom: 20px;">sbi 5,5</p>
+            <p style="font-size: 1.3em;">This is a driver. Everything else is just layers.</p>
+            <p style="margin-top: 15px;"><a href="https://www.youtube.com/shorts/ZcSXHUBY7dc" target="_blank" style="color: #f39c12;">📺 Watch the 60-second proof</a></p>
+        </div>
+        
+        <div class="text-center">
+            <button onclick="copyTruthEn()">
+                📋 COPY THE TRUTH AND SHARE IT
+            </button>
+        </div>
+        
+        <div class="footer">
+            <p>🌍 Also available in: <a href="https://costycnc.github.io/driver-mapa-semplicita/it.html" style="color: #3498db;">Italiano</a></p>
+            <p>🔗 Main site: <a href="https://costycnc.it" target="_blank" style="color: #3498db;">costycnc.it</a> | AVR Portal: <a href="https://costycnc.it/avr1" target="_blank" style="color: #3498db;">avr1</a></p>
+            <p>📹 Video: <a href="https://www.youtube.com/shorts/ZcSXHUBY7dc" target="_blank" style="color: #3498db;">youtube.com/shorts/ZcSXHUBY7dc</a></p>
+            <p>This page is not for those who already understand. It's for those who still need to see.</p>
+            <p>Created by <a href="https://costycnc.it/about/en.html" target="_blank" style="color: #3498db;">Costel Boboaca — CostyCNC</a></p>
+            <p>No copyright. Public domain. Spread it. Teach it. Show the obvious.</p>
+            <p style="margin-top: 15px;">Published: 2026-03-16 | Last modified: 2026-03-16</p>
+        </div>
+    </div>
+    
+    <script>
+        function copyTruthEn() {
+            const text = `THE TRUTH ABOUT DRIVERS (in 2 instructions)
+
+1. Connect Arduino UNO/Nano to your PC via USB
+2. Go to https://costycnc.it/avr1/compiler.html
+3. Paste this code:
+
+.org 0
+    sbi 4,5    ; configure pin as output (drawer 4, bit 5)
+    sbi 5,5    ; turn LED on (drawer 5, bit 5)
+halt:
+    rjmp halt
+
+4. Click "Assemble" then "Upload"
+5. The LED on pin 13 turns on
+
+Watch the video: https://www.youtube.com/shorts/ZcSXHUBY7dc
+
+This is a real driver. No libraries. No magic.
+Just numbered drawers (registers) and instructions to write in them.
+
+The map:
+- Drawer 4 (DDRB) = configuration
+- Drawer 5 (PORTB) = on/off
+- Bit 5 = physical pin 13
+
+Every digital device works exactly like this.
+
+More resources: https://costycnc.it/avr1/start-here.html`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ Truth copied! Paste it anywhere.');
+            });
+        }
+    </script>
+</body>
+</html>
