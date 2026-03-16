@@ -148,10 +148,3 @@ Created by [**Costel Boboaca — CostyCNC**](https://costycnc.it/about/en.html)
 > **sbi 4,5**  
 > **sbi 5,5**  
 > This is a driver. Everything else is just layers.
-```
-
-
-
-
-
-
