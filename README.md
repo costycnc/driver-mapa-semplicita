@@ -150,28 +150,8 @@ Created by [**Costel Boboaca — CostyCNC**](https://costycnc.it/about/en.html)
 > This is a driver. Everything else is just layers.
 ```
 
----
 
-## 📌 Istruzioni per aggiungerlo alla repository
 
-### Metodo 1: Via web (più semplice)
 
-1. Vai su `https://github.com/costycnc/driver-mapa-semplicita`
-2. Clicca su **"Add file"** → **"Create new file"**
-3. Nome file: `README.md`
-4. Incolla tutto il contenuto sopra
-5. In "Commit new file" scrivi: `Add README.md with detailed explanation`
-6. Clicca su **"Commit new file"**
-
-### Metodo 2: Via riga di comando
-
-```bash
-# Se hai già clonato la repository
-cd driver-mapa-semplicita
-# Crea il file README.md con il contenuto sopra
-git add README.md
-git commit -m "Add README.md with detailed explanation"
-git push origin main
-```
 
 
